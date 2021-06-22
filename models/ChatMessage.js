@@ -102,5 +102,28 @@ chatMessageSchema.statics.createPostInChatRoom = async function (chatRoomId, mes
     throw error;
   }
 }
+chatMessageSchema.statics.getConversationByRoomId = async function (chatRoomId, options = {}) {
+  try {
+    return this.aggregate([
+      { $match: { chatRoomId } },
+      { $sort: { createdAt: -1 } },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'postedByUser',
+          foreignField: '_id',
+          as: 'postedByUser',
+        }
+      },
+      { $unwind: "$postedByUser" },
+
+      { $skip: options.page * options.limit },
+      { $limit: options.limit },
+      { $sort: { createdAt: 1 } },
+    ]);
+  } catch (error) {
+    throw error;
+  }
+}
 
 export default mongoose.model("ChatMessage", chatMessageSchema);

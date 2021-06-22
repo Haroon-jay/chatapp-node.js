@@ -1,4 +1,5 @@
-
+import makeValidation from '@withvoid/make-validation';
+import User from "../models/User.js"
 export default{
 postMessage: async (req, res) => {
     try {
@@ -25,10 +26,8 @@ postMessage: async (req, res) => {
 
     initiate: async (req, res) => {
       
-      async (req, res) => {
-      
         try {
-          console.log("trying")
+          console.log(req.body)
           const validation = makeValidation(types => ({
             payload: req.body,
             checks: {
@@ -36,7 +35,6 @@ postMessage: async (req, res) => {
                 type: types.array, 
                 options: { unique: true, empty: false, stringOnly: true } 
               },
-              type: { type: types.enum, options: { enum: CHAT_ROOM_TYPES } },
             }
           }));
           if (!validation.success) return res.status(400).json({ ...validation });
@@ -50,12 +48,59 @@ postMessage: async (req, res) => {
           console.log(error)
           return res.status(500).json({ success: false, error: error })
         }
-      }},
+      },
      
     getRecentConversation: async (req, res) => { },
-    getConversationByRoomId: async (req, res) => { },
-    markConversationReadByRoomId: async (req, res) => { }
+    getConversationByRoomId: async (req, res) => {
+        try {
+          const { roomId } = req.params;
+          const room = await ChatRoomModel.getChatRoomByRoomId(roomId)
+          if (!room) {
+            return res.status(400).json({
+              success: false,
+              message: 'No room exists for this id',
+            })
+          }
+          const users = await UserModel.getUserByIds(room.userIds);
+          const options = {
+            page: parseInt(req.query.page) || 0,
+            limit: parseInt(req.query.limit) || 10,
+          };
+          const conversation = await ChatMessageModel.getConversationByRoomId(roomId, options);
+          return res.status(200).json({
+            success: true,
+            conversation,
+            users,
+          });
+        } catch (error) {
+          return res.status(500).json({ success: false, error });
+        }
+      },
+    
+    markConversationReadByRoomId: async (req, res) => { 
+        try {
+          const { roomId } = req.params;
+          const room = await ChatRoomModel.getChatRoomByRoomId(roomId)
+          if (!room) {
+            return res.status(400).json({
+              success: false,
+              message: 'No room exists for this id',
+            })
+          }
+      
+          const currentLoggedUser = req.userId;
+          const result = await ChatMessageModel.markMessageRead(roomId, currentLoggedUser);
+          return res.status(200).json({ success: true, data: result });
+        } catch (error) {
+          console.log(error);
+          return res.status(500).json({ success: false, error });
+        }
+      },
 
 
-}
+
+    }
+
+
+
 

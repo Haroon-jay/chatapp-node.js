@@ -34,11 +34,12 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/users", userRouter);
 app.use("/login",loginRouter)
-app.use("/room", chatRoomRouter);
+app.use("/room", decode, chatRoomRouter);
 app.use("/delete", deleteRouter);
 app.get("/",(req,res)=>{
   res.render("form")
 })
+
 
 
 app.use('*', (req, res) => {

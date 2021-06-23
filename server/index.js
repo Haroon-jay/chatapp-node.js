@@ -13,7 +13,7 @@ import chatRoomRouter from "../routes/chatRoom.js"
 import deleteRouter from "../routes/delete.js"
 import mongoose from 'mongoose'
 const realDb="mongodb+srv://ramakrishna:e4OFjpWJM2BZSRQQ@cluster0.5e8vb.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
-const CONNECTION_URL ="mongodb://localhost:27017/chatApi"
+const CONNECTION_URL ="mongodb+srv://ramakrishna:e40FjpWJM2BZSRQQ@cluster0.5e8vb.mongodb.net/chatapp?retryWrites=true&w=majority"
 mongoose.connect(CONNECTION_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true
